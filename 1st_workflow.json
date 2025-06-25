@@ -1,0 +1,400 @@
+{
+  "name": "1st workflow",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "57d6f42c-6081-4959-b948-f3ad9a486856",
+      "name": "When clicking ‘Test workflow’",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        0,
+        440
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "154d991a-b2aa-4764-b5d1-af43a58777db",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              },
+              "leftValue": "={{ $json.status.privacyStatus }}",
+              "rightValue": "private"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "95683c7f-9ccc-4490-9def-dd78eea726b1",
+      "name": "Remove private items",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        1320,
+        420
+      ],
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "88dd068e-6aa3-4b87-86a9-7509145efd4e",
+              "name": "playlist_id",
+              "type": "string",
+              "value": "={{ $json.id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "2e7bfba5-5bc3-4fac-91ca-41d088adacde",
+      "name": "Keep only the playlist id",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1380,
+        140
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "04d39c63-eb09-44a3-aca4-e6558bc831a3",
+              "name": "video_id",
+              "type": "string",
+              "value": "={{ $json.contentDetails.videoId }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "370c0532-afe0-4188-9878-23955ab9fc38",
+      "name": "Keep only the video id",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1560,
+        420
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "id": "a66c60d7-6646-466e-ba07-6615a5d3c4f4",
+      "name": "Join the playlist and video id in the same item",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        1760,
+        180
+      ],
+      "typeVersion": 3.1,
+      "alwaysOutputData": true,
+      "executeOnce": true,
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "resource": "playlist",
+        "returnAll": true,
+        "filters": {},
+        "options": {}
+      },
+      "id": "90b13edf-af77-448b-ad31-3e5345af2bf5",
+      "name": "Get all playlists from origin channel",
+      "type": "n8n-nodes-base.youTube",
+      "position": [
+        220,
+        440
+      ],
+      "retryOnFail": true,
+      "typeVersion": 1,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "youTubeOAuth2Api": {
+          "id": "OIPvc9qpcnhroLzp",
+          "name": "YouTube account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "playlistItem",
+        "operation": "getAll",
+        "playlistId": "={{ $json.id }}",
+        "part": [
+          "contentDetails",
+          "status"
+        ],
+        "returnAll": true,
+        "options": {}
+      },
+      "id": "7583b465-f03c-41c3-8d24-a0d98e5d83b8",
+      "name": "Get playlist items from original playlist",
+      "type": "n8n-nodes-base.youTube",
+      "position": [
+        1060,
+        420
+      ],
+      "retryOnFail": true,
+      "typeVersion": 1,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "youTubeOAuth2Api": {
+          "id": "OIPvc9qpcnhroLzp",
+          "name": "YouTube account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "playlist",
+        "operation": "create",
+        "title": "={{ $json.title }}",
+        "options": {}
+      },
+      "id": "05129de6-c55d-48bd-8dba-1ea91039eb72",
+      "name": "Create new playlist in the target channel",
+      "type": "n8n-nodes-base.youTube",
+      "position": [
+        1140,
+        140
+      ],
+      "retryOnFail": false,
+      "typeVersion": 1,
+      "waitBetweenTries": 5000,
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "youTubeOAuth2Api": {
+          "id": "OIPvc9qpcnhroLzp",
+          "name": "YouTube account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "playlistItem",
+        "playlistId": "={{ $json.playlist_id }}",
+        "videoId": "={{ $json.video_id }}",
+        "options": {}
+      },
+      "id": "3551b488-ac31-43a1-8e03-3e48377c3fee",
+      "name": "Add items to target playlist",
+      "type": "n8n-nodes-base.youTube",
+      "position": [
+        1980,
+        420
+      ],
+      "retryOnFail": true,
+      "typeVersion": 1,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "youTubeOAuth2Api": {
+          "id": "OIPvc9qpcnhroLzp",
+          "name": "YouTube account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0d59b712-8fdd-44cd-9759-f0fdd06dbf32",
+              "name": "id",
+              "type": "string",
+              "value": "={{ $json.id }}"
+            },
+            {
+              "id": "f36f4a16-6783-4da4-a9b6-993ca8f4e342",
+              "name": "title",
+              "type": "string",
+              "value": "={{ $json.snippet.title }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "ece984d3-8e2f-4dff-b479-e5372ac38397",
+      "name": "Format fields properly",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        440,
+        440
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "6eb16c1b-6cd4-4026-9945-0e070dd08ae7",
+      "name": "Loop over playlists",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        680,
+        440
+      ],
+      "typeVersion": 3
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get all playlists from origin channel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove private items": {
+      "main": [
+        [
+          {
+            "node": "Keep only the video id",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Keep only the playlist id": {
+      "main": [
+        [
+          {
+            "node": "Join the playlist and video id in the same item",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Keep only the video id": {
+      "main": [
+        [
+          {
+            "node": "Join the playlist and video id in the same item",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Join the playlist and video id in the same item": {
+      "main": [
+        [
+          {
+            "node": "Add items to target playlist",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get all playlists from origin channel": {
+      "main": [
+        [
+          {
+            "node": "Format fields properly",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get playlist items from original playlist": {
+      "main": [
+        [
+          {
+            "node": "Remove private items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create new playlist in the target channel": {
+      "main": [
+        [
+          {
+            "node": "Keep only the playlist id",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add items to target playlist": {
+      "main": [
+        [
+          {
+            "node": "Loop over playlists",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format fields properly": {
+      "main": [
+        [
+          {
+            "node": "Loop over playlists",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop over playlists": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Get playlist items from original playlist",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Create new playlist in the target channel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "83179ef6-8699-4f6a-88f1-fb0fcab4d62b",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "d0c91bf4f670c33a54895b06e476bce51ccc2e6eb288dd496a30e7b8b168b5b9"
+  },
+  "id": "N1P0jp0AsLGAUNOe",
+  "tags": []
+}
