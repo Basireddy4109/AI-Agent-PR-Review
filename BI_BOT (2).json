@@ -1,0 +1,630 @@
+{
+  "name": "BI BOT",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "Sales",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -540,
+        -160
+      ],
+      "id": "c2bb02b2-1e8d-403f-a647-d7c2098a4de4",
+      "name": "Webhook",
+      "webhookId": "cb8132ee-e9ca-4318-8baa-a49b05517d4b"
+    },
+    {
+      "parameters": {
+        "sendTo": "damodar.swathi@gmail.com",
+        "subject": "KPI Summary Report",
+        "emailType": "text",
+        "message": "= Daily Sales Report Summary (Jan 1-3, 2024)\n\n🔹Total Revenue: {{ $json['Total Revenue'] }}\n🔹Top Product: {{ $json['Top Product'] }}\n🔹Region with Highest Growth: {{ $json.RWHG }}\n🔹Issue: {{ $json.Issue }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        840,
+        -20
+      ],
+      "id": "bcaef797-3d14-49b4-818b-88597c23e2e7",
+      "name": "Gmail",
+      "webhookId": "68074f94-ec89-464d-a895-a4762d454d78",
+      "executeOnce": true,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "iEGiOuAZA8ZS1sr4",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -560,
+        140
+      ],
+      "id": "1ab66723-d69b-4ccd-8a02-f8a4c9e37295",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1UkaWfeVWG1ZtKbrIk2Bx0FmsWygzlvHfv84x6BjRypw",
+          "mode": "list",
+          "cachedResultName": "Sales1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1UkaWfeVWG1ZtKbrIk2Bx0FmsWygzlvHfv84x6BjRypw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 564538953,
+          "mode": "list",
+          "cachedResultName": "Sheet2",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1UkaWfeVWG1ZtKbrIk2Bx0FmsWygzlvHfv84x6BjRypw/edit#gid=564538953"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Time Stamp": "={{ $json.timestamp }}",
+            "Errors": "={{ $json.error }}",
+            "Summary": "={{ $json.summary }}",
+            "Suggestion": "={{ $json.suggestion }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Time Stamp",
+              "displayName": "Time Stamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Summary",
+              "displayName": "Summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Errors",
+              "displayName": "Errors",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Suggestion",
+              "displayName": "Suggestion",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "timestamp",
+              "displayName": "timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "summary",
+              "displayName": "summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "error",
+              "displayName": "error",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "suggestion",
+              "displayName": "suggestion",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        1360,
+        -20
+      ],
+      "id": "931020bf-9de2-46dd-89af-36bd34e933e1",
+      "name": "Logging & Error Handling",
+      "alwaysOutputData": true,
+      "retryOnFail": false,
+      "notesInFlow": false,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "zvZh1QvzzzfPAUYc",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1UkaWfeVWG1ZtKbrIk2Bx0FmsWygzlvHfv84x6BjRypw",
+          "mode": "list",
+          "cachedResultName": "Sales1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1UkaWfeVWG1ZtKbrIk2Bx0FmsWygzlvHfv84x6BjRypw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1296972010,
+          "mode": "list",
+          "cachedResultName": "Sales(Sheet1)",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1UkaWfeVWG1ZtKbrIk2Bx0FmsWygzlvHfv84x6BjRypw/edit#gid=1296972010"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        180,
+        -20
+      ],
+      "id": "b70f106e-77b9-40ef-b099-c382d63abf84",
+      "name": "Raw Data",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "zvZh1QvzzzfPAUYc",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Generate summary, Issue, Suggestion,total revenue, topProduct,highestGrowthRegion\n\nUse this input:\n {{ $('KPI Extractor').item.json.totalRevenue }}\n{{ $('KPI Extractor').item.json.topProduct }}\n{{ $('KPI Extractor').item.json.highestGrowthRegion }}\ngenerate issue based on these inputs:\n{{ $json.Region }}\n{{ $json['Product Category'] }}\n{{ $json['Units Sold'] }}\n{{ $json.Revenue }}\n{{ $json.Cost }}\n{{ $json['Customer Complaints'] }}\n\nuse this example:\n\" Issue: Returns in North Zone increased by 37%\"\n\nuse this example:\n\"   Total revenue: ₹X (+Y% WoW)\"\n\ngenerate \"y\" value using this :{{ $('KPI Extractor').item.json.totalRevenue }}\n\nuse this example:\n\"Region with Highest Growth: South Zone – +24%\"\n\ngenerate \"+%\" value using this:{{ $('KPI Extractor').item.json.highestGrowthRegion }}\n\n\ngenerate top product using this:{{ $('KPI Extractor').item.json.topProduct }}",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        340,
+        -20
+      ],
+      "id": "3592fbf6-45c0-4e82-b876-96a03ce20662",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        280,
+        200
+      ],
+      "id": "f557eb1a-61d7-47f4-8a21-51cb860e5555",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "jfUPp0qfWlndLW4J",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n\t\"suggestion\": \"\",\n\t\"summary\": \"\",\n    \"issue\":\"\",\n    \"total revenue\":\"\",\n  \"Region with Highest Growth\":\"\",\n  \"top product\":\"\"\n  \n \n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        540,
+        220
+      ],
+      "id": "46d1c585-dbf5-4dc2-ba77-585993a31f4a",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.3,
+      "position": [
+        1580,
+        -20
+      ],
+      "id": "fe03c80e-afa7-4a4e-b2ce-620016034761",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1UkaWfeVWG1ZtKbrIk2Bx0FmsWygzlvHfv84x6BjRypw",
+          "mode": "list",
+          "cachedResultName": "Sales1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1UkaWfeVWG1ZtKbrIk2Bx0FmsWygzlvHfv84x6BjRypw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 105386931,
+          "mode": "list",
+          "cachedResultName": "Sheet3",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1UkaWfeVWG1ZtKbrIk2Bx0FmsWygzlvHfv84x6BjRypw/edit#gid=105386931"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Total Revenue": "={{ $json.output['total revenue'] }}",
+            "Top Product": "={{ $json.output['top product'] }}",
+            "RWHG": "={{ $json.output['Region with Highest Growth'] }}",
+            "Issue": "={{ $json.output.issue }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Total Revenue",
+              "displayName": "Total Revenue",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Top Product",
+              "displayName": "Top Product",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "RWHG",
+              "displayName": "RWHG",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Issue",
+              "displayName": "Issue",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        660,
+        -20
+      ],
+      "id": "1f427afa-6bf1-4a33-9745-790abaa06b59",
+      "name": "KPI",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "zvZh1QvzzzfPAUYc",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1UkaWfeVWG1ZtKbrIk2Bx0FmsWygzlvHfv84x6BjRypw",
+          "mode": "list",
+          "cachedResultName": "Sales1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1UkaWfeVWG1ZtKbrIk2Bx0FmsWygzlvHfv84x6BjRypw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1296972010,
+          "mode": "list",
+          "cachedResultName": "Sales(Sheet1)",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1UkaWfeVWG1ZtKbrIk2Bx0FmsWygzlvHfv84x6BjRypw/edit#gid=1296972010"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        1000,
+        -20
+      ],
+      "id": "feb74e5b-bbbf-4f2f-aceb-ee9eedbcdee6",
+      "name": "Raw Data1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "zvZh1QvzzzfPAUYc",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "binaryPropertyName": "Sales",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        -300,
+        -20
+      ],
+      "id": "a0b41eb0-ad69-45b8-becb-b5423bdbb87a",
+      "name": "Raw File Converter"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all().map((item) => item.json);\n\n// Calculate Total, Average, Min, Max\nlet totalRevenue = 0;\nlet minRevenue = Infinity;\nlet maxRevenue = -Infinity;\n\nitems.forEach((item) => {\n  const revenue = parseFloat(item.Revenue);\n  totalRevenue += revenue;\n  minRevenue = Math.min(minRevenue, revenue);\n  maxRevenue = Math.max(maxRevenue, revenue);\n});\n\nconst averageRevenue = totalRevenue / items.length;\n\n// Calculate Week-over-week or Month-over-month change\n// This requires the data to be sorted by date and the date to be in a standard format\n// For simplicity, this part is omitted in this example\n\n// Identify Trends over time (line graph output)\n// This requires a library to plot the graph which is not available in this environment\n// For simplicity, this part is omitted in this example\n\n// Top performers (e.g., best-selling product, top revenue region)\n// This requires additional data which is not available in this example\n// For simplicity, this part is omitted in this example\n\n// Drops or spikes in data (anomalies)\n// This requires statistical analysis which is complex and not covered in this example\n// For simplicity, this part is omitted in this example\n\n// Optional: Predictive trend estimation using simple regression\n// This requires a library to perform the regression which is not available in this environment\n// For simplicity, this part is omitted in this example\n\nreturn {\n  totalRevenue,\n  averageRevenue,\n  minRevenue,\n  maxRevenue,\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -120,
+        -20
+      ],
+      "id": "fcd165ce-d863-4172-9b17-9bd77b5f0e21",
+      "name": "KPI Calculator"
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.all().map((item) => item.json)[0];\nconst extractedData = $(\"Raw File Converter\")\n  .all()\n  .map((item) => item.json);\n\nconst totalRevenue = input.totalRevenue;\n\nconst productSales = extractedData.reduce((acc, item) => {\n  acc[item[\"Product Category\"]] =\n    (acc[item[\"Product Category\"]] || 0) + Number(item.Revenue);\n  return acc;\n}, {});\n\nconst topProduct = Object.keys(productSales).reduce((a, b) =>\n  productSales[a] > productSales[b] ? a : b,\n);\n\nconst regionGrowth = extractedData.reduce((acc, item) => {\n  acc[item.Region] = (acc[item.Region] || 0) + Number(item.Revenue);\n  return acc;\n}, {});\n\nconst highestGrowthRegion = Object.keys(regionGrowth).reduce((a, b) =>\n  regionGrowth[a] > regionGrowth[b] ? a : b,\n);\n\nconst issue = extractedData.some((item) => item[\"Customer Complaints\"])\n  ? \"Yes\"\n  : \"No\";\n\nreturn {\n  totalRevenue,\n  topProduct,\n  highestGrowthRegion,\n  issue,\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        40,
+        -20
+      ],
+      "id": "7190fd04-a10c-48b4-b708-8e5d2af85c76",
+      "name": "KPI Extractor"
+    },
+    {
+      "parameters": {
+        "jsCode": "const rows = $input.all().map(item => item.json);\n\n// --- Initialize log object ---\nconst log = {\n  timestamp: new Date().toISOString(),\n  summary: $('AI Agent').first().json.output.summary,\n  error:$('AI Agent').first().json.output.issue ,\n  suggestion: $('AI Agent').first().json.output.suggestion\n};\n\n// --- Basic validation ---\nif (rows.length === 0) {\n  log.error = \"No data rows found.\";\n  log.suggestion = \"Please upload a valid CSV or Excel file with structured data.\";\n  return [{ json: log }];\n}\n\nconst requiredFields = [\"Date\", \"Revenue\"];\nconst missingFields = requiredFields.filter(field => !Object.keys(rows[0]).includes(field));\n\nif (missingFields.length > 0) {\n  log.error = `Missing required fields: ${missingFields.join(\", \")}`;\n  log.suggestion = \"Please include a 'Date' and 'Revenue' column in your upload.\";\n  return [{ json: log }];\n}\n\n// --- Proceed with summary calculations ---\nconst totalRevenue = rows.reduce((sum, row) => sum + Number(row.Revenue || 0), 0);\nconst minRevenue = Math.min(...rows.map(row => Number(row.Revenue || 0)));\nconst maxRevenue = Math.max(...rows.map(row => Number(row.Revenue || 0)));\nconst averageRevenue = totalRevenue / rows.length;\n\nlog.summary = {\n  totalRevenue,\n  averageRevenue: Number(averageRevenue.toFixed(2)),\n  minRevenue,\n  maxRevenue,\n  rowCount: rows.length\n};\n\nreturn [{ json: log }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1160,
+        -20
+      ],
+      "id": "ad1238aa-f764-4094-8d29-8184db0c58b0",
+      "name": "Logging Assistant"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Raw File Converter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail": {
+      "main": [
+        [
+          {
+            "node": "Raw Data1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Raw File Converter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Raw Data": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "KPI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Logging & Error Handling": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "KPI": {
+      "main": [
+        [
+          {
+            "node": "Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Raw Data1": {
+      "main": [
+        [
+          {
+            "node": "Logging Assistant",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Raw File Converter": {
+      "main": [
+        [
+          {
+            "node": "KPI Calculator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "KPI Calculator": {
+      "main": [
+        [
+          {
+            "node": "KPI Extractor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "KPI Extractor": {
+      "main": [
+        [
+          {
+            "node": "Raw Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Logging Assistant": {
+      "main": [
+        [
+          {
+            "node": "Logging & Error Handling",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "0d0d05ca-baa2-465b-8c8e-c99fada36b46",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b96292d0859e88bc6066e86501e13b3786b9862cacaac27c52eb7c114b8c13c8"
+  },
+  "id": "tna7y8iMsidnfExp",
+  "tags": []
+}

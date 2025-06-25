@@ -1,0 +1,378 @@
+{
+  "name": "Policy Change Notification & Acknowledgment Tracker",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Policy Change Notification",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "HR_policy",
+              "fieldType": "file",
+              "acceptFileTypes": "png"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        -2420,
+        2180
+      ],
+      "id": "62ae457c-65e3-4bd3-95ee-3f756e2c3fda",
+      "name": "On form submission",
+      "webhookId": "ff13d3f5-43f6-4361-aa58-dcce583074e0"
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "policy_id",
+              "value": "HR2025-05"
+            },
+            {
+              "name": "policy_name",
+              "value": "={{ $('On form submission').item.json.HR_policy[0].filename }}"
+            },
+            {
+              "name": "policy_url",
+              "value": "=https://yourdomain.com/ack?"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "5b98d456-3d5f-4988-b76d-5fb1dc4fcce7",
+      "name": "Set Policy Metadata",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        -2180,
+        2180
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "return items.map(item => {\n  const policyId = $items(\"Set Policy Metadata\")[0].json[\"policy_id\"];\n  const ackLink = `https://yourdomain.com/ack?user_id=${item.json.user_id}&policy_id=${policyId}`;\n  item.json.ack_link = ackLink;\n  return item;\n});"
+      },
+      "id": "0d84db8e-ba7d-4d15-8794-9c812cc8e295",
+      "name": "Generate Ack Link",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        -1280,
+        2040
+      ]
+    },
+    {
+      "parameters": {
+        "unit": "seconds"
+      },
+      "id": "c48f4e9f-5527-4f63-902e-044a79626b03",
+      "name": "Wait 3 Days",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [
+        -820,
+        2040
+      ],
+      "webhookId": "7f56e7c0-7b51-47ac-b1a7-81cfd67d37f6"
+    },
+    {
+      "parameters": {
+        "unit": "seconds"
+      },
+      "id": "00d42f01-784e-46a6-a575-9679854a8175",
+      "name": "Wait Additional 4 Days",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [
+        0,
+        1940
+      ],
+      "webhookId": "8e7f8bdb-80a3-4e23-a51d-8be23d320554"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Postgres').item.json.email }}",
+        "subject": "=Escalation: Policy Not Acknowledged - {{ $('Postgres').item.json.name }}",
+        "message": "=This is a reminder that {{ $('Postgres').item.json.name }} (Employee ID: {{ $('Postgres').item.json.user_id }}) has not yet acknowledged the recent policy titled \"{{ $('Set Policy Metadata').item.json.HR_policy[0].filename }}\", \n\nPlease follow up with them to complete the acknowledgment.\n\n🔗 Acknowledgment Link: {{ $('Generate Ack Link').item.json.ack_link }}\n\nThank you,\nHR Team\n\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        220,
+        2220
+      ],
+      "id": "29145338-db68-43ab-9e09-c9c213668ad9",
+      "name": "Gmail3",
+      "webhookId": "cd14c5bc-dec4-4f33-a3ab-88fecc673ed8",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "vE9Vjxw57G5jcCRC",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.email }}",
+        "subject": "Reminder: Please Acknowledge Policy",
+        "message": "=<p>Hi {{ $json.name }},</p>\n<p>This is a reminder to review and acknowledge the policy: <strong>{{ $('Set Policy Metadata').item.json.policy_name }}</strong>.</p>\n\n<p>\n  📄 <a href=\"{{ $('Set Policy Metadata').item.json.policy_url }}\">View Policy Document</a>\n</p>\n\n<p>\n  ✅ <a href=\"https://yourdomain.com/ack?user_id=undefined&policy_id=HR2025-05\">Click here to acknowledge</a>\n</p>\n\n<p>Thank you,\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        -240,
+        1940
+      ],
+      "id": "293ab22a-a826-467d-a938-6958a780a06c",
+      "name": "Remainder Mail",
+      "webhookId": "143266e4-8b86-42f0-8db9-59693e8c9f69",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "vE9Vjxw57G5jcCRC",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.email }}",
+        "subject": "=\"Action Required: Acknowledge",
+        "message": "=\"Hi {{ $json.name }},A new policy titled '{{ $('Set Policy Metadata').item.json.policy_name }}' has been released. Please review it at the link below:Policy Document: {{ $('Set Policy Metadata').item.json.policy_url }}To acknowledge that you’ve read the policy, please click this link:\\n{{ $json[\"ack_link\"] }}\\n\\nThank you!\", \"html\": \"<p>Hi {{ $json.name }}},</p><p>A new policy titled <strong></strong> has been released.</p><p><a href='{{ $('Set Policy Metadata').item.json.policy_url }}'>View Policy Document</a></p>{{ $('Set Policy Metadata').item.json.policy_name }}<p>Please click the link below to acknowledge:</p><p><a href='{{ $json.ack_link }}'>Acknowledge Policy</a></p><p>Thank you!</p>\"",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        -1040,
+        2040
+      ],
+      "id": "0cc4d5fc-142b-440c-814b-d8560f16d14f",
+      "name": "Send Ack mail",
+      "webhookId": "b1a260bd-a1d8-45ca-8214-fb1ea0914cdf",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "vE9Vjxw57G5jcCRC",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -1680,
+        1860
+      ],
+      "id": "e4825884-5689-47f7-8f2d-6203e9e33b9a",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "users",
+          "mode": "list",
+          "cachedResultName": "users"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -1880,
+        2180
+      ],
+      "id": "1286ffd5-3d47-4b88-8df3-f3d518f1dd8f",
+      "name": "Postgres",
+      "credentials": {
+        "postgres": {
+          "id": "Hvw0hETCAziw75JD",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "users",
+          "mode": "list",
+          "cachedResultName": "users"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -580,
+        2040
+      ],
+      "id": "87342f53-3cb8-4e3c-a0f7-179e17c1cc60",
+      "name": "Postgres1",
+      "credentials": {
+        "postgres": {
+          "id": "Hvw0hETCAziw75JD",
+          "name": "Postgres account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Set Policy Metadata",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Policy Metadata": {
+      "main": [
+        [
+          {
+            "node": "Postgres",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Ack Link": {
+      "main": [
+        [
+          {
+            "node": "Send Ack mail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 3 Days": {
+      "main": [
+        [
+          {
+            "node": "Postgres1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait Additional 4 Days": {
+      "main": [
+        [
+          {
+            "node": "Gmail3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remainder Mail": {
+      "main": [
+        [
+          {
+            "node": "Wait Additional 4 Days",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Ack mail": {
+      "main": [
+        [
+          {
+            "node": "Wait 3 Days",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Generate Ack Link",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Postgres",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres1": {
+      "main": [
+        [
+          {
+            "node": "Remainder Mail",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Gmail3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "6cf9ec5a-ffd7-4924-bb91-34fa6315bb5b",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "d0c91bf4f670c33a54895b06e476bce51ccc2e6eb288dd496a30e7b8b168b5b9"
+  },
+  "id": "uJYQeFaZ26ccMQD5",
+  "tags": []
+}
